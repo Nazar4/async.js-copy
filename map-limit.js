@@ -28,8 +28,9 @@ function parallelMapLimitCallback(coll, limit, iteratee, callback) {
     tasksBandwidth = limit;
 
   function processNextTasks() {
-    while (tasksBandwidth > 0 && ++taskIndex < coll.length) {
+    while (tasksBandwidth-- > 0 && ++taskIndex < coll.length) {
       const index = taskIndex;
+      const currentLimit = tasksBandwidth;
       _iteratee(coll[taskIndex], (err, value) => {
         results[index] = value;
         if (err) {
@@ -41,7 +42,7 @@ function parallelMapLimitCallback(coll, limit, iteratee, callback) {
           _callback(null, results);
           return;
         }
-        if (--tasksBandwidth === 0) {
+        if (currentLimit === 0) {
           tasksBandwidth = limit;
           processNextTasks();
         }
