@@ -88,9 +88,21 @@ function invokeCallback(callback, error, value) {
   }
 }
 
+function isArrayOrArrayLike(obj) {
+  return (
+    Array.isArray(obj) ||
+    (obj != null &&
+      typeof obj === 'object' &&
+      typeof obj.length === 'number' &&
+      obj.length >= 0 &&
+      (obj.length === 0 || (obj.length > 0 && obj.length - 1 in obj)))
+  );
+}
+
 module.exports = {
   wrapAsync,
   asyncify,
   toPromise,
-  executeFunctionOnlyOnce
+  executeFunctionOnlyOnce,
+  isArrayOrArrayLike
 };
