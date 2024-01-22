@@ -1,3 +1,4 @@
+const { iterator } = require('../iterator');
 const {
   toPromise,
   wrapAsync,
@@ -46,7 +47,7 @@ function parallelEachOfLimitCallback(limit) {
     if (!coll || coll.length === 0) {
       return callback(null);
     }
-    let index = 0,
+    let nextElem = iterator(coll),
       canceled = false,
       running = 0,
       looping = false,
@@ -71,17 +72,20 @@ function parallelEachOfLimitCallback(limit) {
     function processItems() {
       looping = true;
       while (running < limit && !done) {
-        var nextElem = coll[index];
-        if (nextElem === null || nextElem === undefined) {
+        var item = nextElem();
+        if (item === null) {
           done = true;
           if (running <= 0) {
             _callback(null);
           }
           return;
         }
-        _iteratee(nextElem, index, executeFunctionOnlyOnce(iterateeCallback));
-        index += 1;
         running += 1;
+        _iteratee(
+          item.value,
+          item.key,
+          executeFunctionOnlyOnce(iterateeCallback)
+        );
       }
       looping = false;
     }
