@@ -99,10 +99,39 @@ function isArrayOrArrayLike(obj) {
   );
 }
 
+function isArrayLike(obj) {
+  return (
+    obj != null &&
+    typeof obj === 'object' &&
+    typeof obj.length === 'number' &&
+    obj.length >= 0 &&
+    (obj.length === 0 || (obj.length > 0 && obj.length - 1 in obj))
+  );
+}
+
+function iterateeWithValueAndKey(iteratee) {
+  return function (...args) {
+    var item = args[0];
+    var callback = args[1];
+    return iteratee(item?.value, item?.key, callback);
+  };
+}
+
+function iterateeWithValue(iteratee) {
+  return function (...args) {
+    var item = args[0];
+    var callback = args[1];
+    return iteratee(item?.value, callback);
+  };
+}
+
 module.exports = {
   wrapAsync,
   asyncify,
   toPromise,
   executeFunctionOnlyOnce,
-  isArrayOrArrayLike
+  isArrayOrArrayLike,
+  isArrayLike,
+  iterateeWithValueAndKey,
+  iterateeWithValue
 };
