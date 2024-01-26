@@ -3,21 +3,18 @@ const {
   toPromise,
   wrapAsync,
   executeFunctionOnlyOnce,
-  iterateeWithValue
+  breakLoop
 } = require('../util-async');
 
 const parallelEach = (coll, iteratee, callback) => {
   if (callback) {
-    parallelEachLimitCallback(Infinity)(
-      coll,
-      iterateeWithValue(iteratee),
-      callback
-    );
+    each(parallelEachLimitCallback(Infinity), coll, iteratee, callback);
   } else {
     return toPromise(
+      each,
       parallelEachLimitCallback(Infinity),
       coll,
-      iterateeWithValue(iteratee),
+      iteratee,
       callback
     );
   }
@@ -25,12 +22,13 @@ const parallelEach = (coll, iteratee, callback) => {
 
 const seriesEach = (coll, iteratee, callback) => {
   if (callback) {
-    parallelEachLimitCallback(1)(coll, iterateeWithValue(iteratee), callback);
+    each(parallelEachLimitCallback(1), coll, iteratee, callback);
   } else {
     return toPromise(
+      each,
       parallelEachLimitCallback(1),
       coll,
-      iterateeWithValue(iteratee),
+      iteratee,
       callback
     );
   }
@@ -38,16 +36,13 @@ const seriesEach = (coll, iteratee, callback) => {
 
 function parallelEachLimit(coll, limit, iteratee, callback) {
   if (callback) {
-    parallelEachLimitCallback(limit)(
-      coll,
-      iterateeWithValue(iteratee),
-      callback
-    );
+    each(parallelEachLimitCallback(limit), coll, iteratee, callback);
   } else {
     return toPromise(
+      each,
       parallelEachLimitCallback(limit),
       coll,
-      iterateeWithValue(iteratee),
+      iteratee,
       callback
     );
   }
@@ -76,8 +71,9 @@ function parallelEachLimitCallback(limit) {
         done = true;
         canceled = true;
         _callback(err);
-      } else if (done && running <= 0) {
+      } else if (value === breakLoop || (done && running <= 0)) {
         done = true;
+        canceled = true;
         _callback(null);
       } else if (!looping) {
         processItems();
@@ -95,12 +91,36 @@ function parallelEachLimitCallback(limit) {
           return;
         }
         running += 1;
-        _iteratee(item, executeFunctionOnlyOnce(iterateeCallback));
+        _iteratee(
+          item.value,
+          item.key,
+          executeFunctionOnlyOnce(iterateeCallback)
+        );
       }
       looping = false;
     }
     processItems();
   };
+}
+
+function each(eachfn, coll, iteratee, callback) {
+  coll = coll || [];
+  const _iteratee = wrapAsync(iteratee);
+
+  return eachfn(
+    coll,
+    (value, _, iterationCallback) => {
+      _iteratee(value, (err) => {
+        if (err) return iterationCallback(err);
+
+        iterationCallback();
+      });
+    },
+    (err) => {
+      if (err) return callback(err);
+      callback(null);
+    }
+  );
 }
 
 module.exports = {
