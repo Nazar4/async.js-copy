@@ -29,7 +29,7 @@ function seriesEvery(coll, iteratee, callback) {
   }
 }
 
-function seriesEveryLimit(coll, limit, iteratee, callback) {
+function parallelEveryLimit(coll, limit, iteratee, callback) {
   if (callback) {
     every(parallelEachLimitCallback(limit), coll, iteratee, callback);
   } else {
@@ -69,4 +69,4 @@ function every(eachfn, coll, iteratee, callback) {
   );
 }
 
-module.exports = { parallelEvery, seriesEvery, seriesEveryLimit };
+module.exports = { parallelEvery, seriesEvery, parallelEveryLimit };
