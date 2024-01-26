@@ -109,21 +109,7 @@ function isArrayLike(obj) {
   );
 }
 
-function iterateeWithValueAndKey(iteratee) {
-  return function (...args) {
-    var item = args[0];
-    var callback = args[1];
-    return iteratee(item?.value, item?.key, callback);
-  };
-}
-
-function iterateeWithValue(iteratee) {
-  return function (...args) {
-    var item = args[0];
-    var callback = args[1];
-    return iteratee(item?.value, callback);
-  };
-}
+const breakLoop = {};
 
 module.exports = {
   wrapAsync,
@@ -132,6 +118,5 @@ module.exports = {
   executeFunctionOnlyOnce,
   isArrayOrArrayLike,
   isArrayLike,
-  iterateeWithValueAndKey,
-  iterateeWithValue
+  breakLoop
 };
