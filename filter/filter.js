@@ -1,9 +1,4 @@
-const {
-  toPromise,
-  wrapAsync,
-  breakLoop,
-  isArrayOrArrayLike
-} = require('../util-async');
+const { toPromise, wrapAsync, isArrayOrArrayLike } = require('../util-async');
 const { parallelEachLimitCallback } = require('../each/each');
 
 function parallelFilter(coll, iteratee, callback) {
