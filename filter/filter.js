@@ -17,6 +17,8 @@ function parallelFilter(coll, iteratee, callback) {
 }
 
 function seriesFilter(coll, iteratee, callback) {
+  const arr = [1, 2, 3, 4];
+  var filter2 = new Array(...arr);
   var filter = isArrayOrArrayLike(coll) ? filterArray : filterGeneric;
   if (callback) {
     filter(parallelEachLimitCallback(1), coll, iteratee, callback);
