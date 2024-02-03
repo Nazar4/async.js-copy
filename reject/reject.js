@@ -1,13 +1,13 @@
 const { toPromise, wrapAsync, isArrayOrArrayLike } = require('../util-async');
 const { parallelEachLimitCallback } = require('../each/each');
 
-function parallelFilter(coll, iteratee, callback) {
-  var filter = isArrayOrArrayLike(coll) ? filterArray : filterGeneric;
+function parallelReject(coll, iteratee, callback) {
+  var reject = isArrayOrArrayLike(coll) ? rejectArray : rejectGeneric;
   if (callback) {
-    filter(parallelEachLimitCallback(Infinity), coll, iteratee, callback);
+    reject(parallelEachLimitCallback(Infinity), coll, iteratee, callback);
   } else {
     return toPromise(
-      filter,
+      reject,
       parallelEachLimitCallback(Infinity),
       coll,
       iteratee,
@@ -16,13 +16,13 @@ function parallelFilter(coll, iteratee, callback) {
   }
 }
 
-function seriesFilter(coll, iteratee, callback) {
-  var filter = isArrayOrArrayLike(coll) ? filterArray : filterGeneric;
+function seriesReject(coll, iteratee, callback) {
+  var reject = isArrayOrArrayLike(coll) ? rejectArray : rejectGeneric;
   if (callback) {
-    filter(parallelEachLimitCallback(1), coll, iteratee, callback);
+    reject(parallelEachLimitCallback(1), coll, iteratee, callback);
   } else {
     return toPromise(
-      filter,
+      reject,
       parallelEachLimitCallback(1),
       coll,
       iteratee,
@@ -31,13 +31,13 @@ function seriesFilter(coll, iteratee, callback) {
   }
 }
 
-function parallelFilterLimit(coll, limit, iteratee, callback) {
-  var filter = isArrayOrArrayLike(coll) ? filterArray : filterGeneric;
+function parallelRejectLimit(coll, limit, iteratee, callback) {
+  var reject = isArrayOrArrayLike(coll) ? rejectArray : rejectGeneric;
   if (callback) {
-    filter(parallelEachLimitCallback(limit), coll, iteratee, callback);
+    reject(parallelEachLimitCallback(limit), coll, iteratee, callback);
   } else {
     return toPromise(
-      filter,
+      reject,
       parallelEachLimitCallback(limit),
       coll,
       iteratee,
@@ -46,7 +46,7 @@ function parallelFilterLimit(coll, limit, iteratee, callback) {
   }
 }
 
-function filterArray(eachfn, coll, iteratee, callback) {
+function rejectArray(eachfn, coll, iteratee, callback) {
   coll = coll || [];
   const _iteratee = wrapAsync(iteratee);
   const results = new Array(coll.length);
@@ -55,7 +55,7 @@ function filterArray(eachfn, coll, iteratee, callback) {
     coll,
     (value, index, iterationCallback) => {
       _iteratee(value, (err, truthValue) => {
-        if (truthValue) {
+        if (!truthValue) {
           results[index] = value;
         }
         iterationCallback(err);
@@ -71,7 +71,7 @@ function filterArray(eachfn, coll, iteratee, callback) {
   );
 }
 
-function filterGeneric(eachfn, coll, iteratee, callback) {
+function rejectGeneric(eachfn, coll, iteratee, callback) {
   coll = coll || [];
   const _iteratee = wrapAsync(iteratee);
   const results = [];
@@ -81,7 +81,7 @@ function filterGeneric(eachfn, coll, iteratee, callback) {
     coll,
     (value, key, iterationCallback) => {
       _iteratee(value, (err, truthValue) => {
-        if (truthValue) {
+        if (!truthValue) {
           results.push({ key, value });
         }
         iterationCallback(err);
@@ -101,4 +101,4 @@ function filterGeneric(eachfn, coll, iteratee, callback) {
   );
 }
 
-module.exports = { parallelFilter, seriesFilter, parallelFilterLimit };
+module.exports = { parallelReject, seriesReject, parallelRejectLimit };
