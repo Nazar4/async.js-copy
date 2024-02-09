@@ -1,6 +1,6 @@
 const { seriesMap } = require('./map');
 const parallelMapLimit = require('./map-limit');
-const { toPromise } = require('./util-async');
+const { toPromise } = require('../util-async');
 
 const parallelConcat = (coll, iteratee, callback) => {
   if (callback) {
