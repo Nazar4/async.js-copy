@@ -30,7 +30,6 @@ function reduce(eachfn, coll, memo, iteratee, callback) {
     coll,
     (value, _, iterationCallback) => {
       _iteratee(result, value, (err, v) => {
-        console.log(v);
         result = v;
         return iterationCallback(err);
       });

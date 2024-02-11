@@ -18,6 +18,21 @@ function toPromise(fn, ...args) {
   });
 }
 
+function promiseCallback(callback) {
+  return new Promise((resolve, reject) => {
+    fn.apply(null, [
+      ...args,
+      (err, results) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(results);
+        }
+      }
+    ]);
+  });
+}
+
 function executeFunctionOnlyOnce(fn) {
   return function (...args) {
     if (fn === null) throw new Error('Callback was already called.');
