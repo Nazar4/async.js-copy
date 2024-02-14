@@ -124,6 +124,18 @@ function isArrayLike(obj) {
   );
 }
 
+function asyncApply(...args) {
+  if (!args) return;
+
+  const fn = args.shift();
+
+  if (typeof fn !== 'function') {
+    throw new Error('First argument has to be a function');
+  }
+
+  return (...newArgs) => fn.apply(null, [...args, ...newArgs]);
+}
+
 const breakLoop = {};
 
 module.exports = {
@@ -133,5 +145,6 @@ module.exports = {
   executeFunctionOnlyOnce,
   isArrayOrArrayLike,
   isArrayLike,
+  asyncApply,
   breakLoop
 };
